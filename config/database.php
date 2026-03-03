@@ -2,8 +2,8 @@
 class Database {
     private $host = "localhost";
     private $db_name = "happypaws";
-    private $username = "root";
-    private $password = "";
+    private $username = "arum";
+    private $password = "arumri23";
     public $conn;
 
     public function getConnection() {
