@@ -1,24 +1,31 @@
 <?php
-require 'connection.php';
+require 'config/database.php';
+require 'models/produk.php';
 
-$id = $_GET['id'];
+$database = new Database();
+$conn = $database->getConnection();
+
+$produk = new Produk($conn);
+$produk->id = $_GET['id'];
 
 // Get product info first
-$stmt = $pdo->prepare("SELECT * FROM produk WHERE id = ?");
-$stmt->execute([$id]);
-$produk = $stmt->fetch(PDO::FETCH_ASSOC);
+$produk->readOne();
+$produk_data = [
+    'nama_produk' => $produk->nama_produk,
+    'harga' => $produk->harga,
+    'stok' => $produk->stok
+];
 
-if (!$produk) {
+if (!$produk_data['nama_produk']) {
     header("Location: produk.php");
     exit;
 }
 
 // Handle deletion
 if (isset($_POST['confirm_delete'])) {
-    $sql = "DELETE FROM produk WHERE id = ?";
-    $stmt = $pdo->prepare($sql);
+    $produk->id = $_GET['id'];
     
-    if ($stmt->execute([$id])) {
+    if ($produk->delete()) {
         header("Location: produk.php");
         exit;
     }
@@ -75,9 +82,9 @@ if (isset($_POST['confirm_delete'])) {
             </div>
 
             <div style="background: var(--light); padding: 20px; border-radius: var(--radius); margin-bottom: 30px;">
-                <p><strong><?= htmlspecialchars($produk['nama_produk']); ?></strong></p>
-                <p class="price" style="font-size: 1.2rem;">Rp <?= number_format($produk['harga'], 0, ',', '.'); ?></p>
-                <p style="color: var(--gray);">Stok: <?= $produk['stok']; ?></p>
+                <p><strong><?= htmlspecialchars($produk_data['nama_produk']); ?></strong></p>
+                <p class="price" style="font-size: 1.2rem;">Rp <?= number_format($produk_data['harga'], 0, ',', '.'); ?></p>
+                <p style="color: var(--gray);">Stok: <?= $produk_data['stok']; ?></p>
             </div>
 
             <form method="POST" action="">

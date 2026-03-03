@@ -1,6 +1,10 @@
 <?php
 session_start();
-require 'connection.php';
+require 'config/database.php';
+require 'models/produk.php';
+
+$database = new Database();
+$conn = $database->getConnection();
 
 header('Content-Type: application/json');
 
@@ -14,11 +18,17 @@ if ($action === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = (int)$_POST['id'];
     
     // Check stock in database
-    $stmt = $pdo->prepare("SELECT * FROM produk WHERE id = ?");
-    $stmt->execute([$id]);
-    $product = $stmt->fetch(PDO::FETCH_ASSOC);
+    $produk = new Produk($conn);
+    $produk->id = $id;
+    $produk->readOne();
+    $product = [
+        'id' => $produk->id,
+        'nama_produk' => $produk->nama_produk,
+        'harga' => $produk->harga,
+        'stok' => $produk->stok
+    ];
 
-    if (!$product) {
+    if (!$product['nama_produk']) {
         echo json_encode(['success' => false, 'message' => 'Produk tidak ditemukan']);
         exit;
     }
@@ -69,4 +79,3 @@ if ($action === 'get_cart') {
     exit;
 }
 ?>
-

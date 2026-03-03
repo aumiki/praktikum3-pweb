@@ -1,20 +1,27 @@
 <?php
-require 'connection.php';
+require 'config/database.php';
+require 'models/produk.php';
 
-$id = $_GET['id'];
-$stmt = $pdo->prepare("SELECT * FROM produk WHERE id = ?");
-$stmt->execute([$id]);
-$data = $stmt->fetch(PDO::FETCH_ASSOC);
+$database = new Database();
+$conn = $database->getConnection();
+
+$produk = new Produk($conn);
+$produk->id = $_GET['id'];
+$produk->readOne();
+$data = [
+    'id' => $produk->id,
+    'nama_produk' => $produk->nama_produk,
+    'harga' => $produk->harga,
+    'stok' => $produk->stok
+];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nama_produk = $_POST['nama_produk'];
-    $harga = $_POST['harga'];
-    $stok = $_POST['stok'];
+    $produk->nama_produk = $_POST['nama_produk'];
+    $produk->harga = $_POST['harga'];
+    $produk->stok = $_POST['stok'];
+    $produk->id = $_GET['id'];
 
-    $sql = "UPDATE produk SET nama_produk = ?, harga = ?, stok = ? WHERE id = ?";
-    $stmt = $pdo->prepare($sql);
-
-    if ($stmt->execute([$nama_produk, $harga, $stok, $id])) {
+    if ($produk->update()) {
         header("Location: produk.php");
         exit;
     }

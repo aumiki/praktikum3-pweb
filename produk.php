@@ -1,6 +1,12 @@
 <?php
-require 'connection.php';
-$stmt = $pdo->query("SELECT * FROM produk ORDER BY id DESC");
+require 'config/database.php';
+require 'models/produk.php';
+
+$database = new Database();
+$conn = $database->getConnection();
+
+$produk = new Produk($conn);
+$stmt = $produk->read();
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
