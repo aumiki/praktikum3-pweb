@@ -1,9 +1,13 @@
 <?php
 session_start();
-require 'connection.php';
+require 'config/database.php';
+require 'models/produk.php';
 
-// Fetch products
-$stmt = $pdo->query("SELECT * FROM produk WHERE stok > 0");
+$database = new Database();
+$conn = $database->getConnection();
+
+$produk = new Produk($conn);
+$stmt = $produk->readAvailable();
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Count items in cart

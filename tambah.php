@@ -1,17 +1,20 @@
 <?php
-require 'connection.php';
+require 'config/database.php';
+require 'models/produk.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nama = $_POST['nama'];
-    $harga = $_POST['harga'];
-    $stok = $_POST['stok'];
+    $database = new Database();
+    $conn = $database->getConnection();
+    
+    $produk = new Produk($conn);
+    $produk->nama_produk = $_POST['nama'];
+    $produk->harga = $_POST['harga'];
+    $produk->stok = $_POST['stok'];
 
-    $sql = "INSERT INTO produk (nama_produk, harga, stok) VALUES (?, ?, ?)";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$nama, $harga, $stok]);
-
-    header("Location: produk.php");
-    exit;
+    if ($produk->create()) {
+        header("Location: produk.php");
+        exit;
+    }
 }
 ?>
 
